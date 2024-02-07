@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}
+spec:
+  # Set replica count if no autoscaling data present
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  
+  template:
+    spec:
+      # Create init container to set correct mmap count (not needed on all systems, but could come up in a prod env)
+      initContainers:
+        - name: sysctl
+          image: busybox:1.28
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+
+      # Create service account
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      
+      # Declares volumes for container
+      volumes:
+        # Volume where Elasticsearch data is stored
+        - name: es-data
+          persistentVolumeClaim:
+            claimName: "{{ .Values.esDataVolumeClaimName }}"
+        # Volume for elasticsearch.yml file    
+        - name: es-config
+          configMap:
+            name: {{ .Values.nameOverride }}-config
+        # Volume for elasticsearch user creds (with Filerealm users)
+        - name: es-users
+          secret:
+            secretName: elasticsearch-dev-users
+        # Volume for elasticserach user roles (with Filerealm roles)    
+        - name: es-roles
+          secret:
+            secretName: elasticsearch-dev-roles
+
+      # Main container      
+      containers:
+        - name: {{ .Values.appName }}
+          # Image info
+          image: {{ .Values.image.repository }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          
+          # Env vars from secret.yaml (pulls for extraEnv in values)
+          envFrom:
+            - secretRef:
+                name: elasticsecret
+
+          # Mounts for volumes      
+          volumeMounts:
+            - name: es-data
+              mountPath: /usr/share/elasticsearch/data
+            - name: es-config
+              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              subPath: elasticsearch.yml
+            - name: es-users
+              mountPath: /usr/share/elasticsearch/config/users
+              subPath: users
+            - name: es-roles
+              mountPath: /usr/share/elasticsearch/config/users_roles
+              subPath: users_roles
+          
+          # Ports for service (9200/9300)
+          ports:
+            - name: web
+              containerPort: {{ .Values.service.port }}
+            - name: transport
+              containerPort: {{ .Values.transportservice.port }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

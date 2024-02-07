@@ -1,0 +1,24 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ .Values.esDataVolumeName }}
+  labels:
+    type: local
+spec:
+  storageClassName: {{.Values.esDataStorageClassName}}
+  capacity:
+    storage: 1Gi
+  # This would be different in real life, you would want to use aws-efs and larger size
+  local:
+    path: {{ .Values.esDataFolderPath }}
+  persistentVolumeReclaimPolicy: Retain
+  accessModes:
+    - ReadWriteOnce
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - docker-desktop

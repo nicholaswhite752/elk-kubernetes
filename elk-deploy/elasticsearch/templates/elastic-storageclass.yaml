@@ -1,0 +1,7 @@
+# Creates stprage class for elasticsearch data volume
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{.Values.esDataStorageClassName}}
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer

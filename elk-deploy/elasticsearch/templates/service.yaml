@@ -1,0 +1,18 @@
+# Opens ports for service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.nameOverride }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      name: web
+    - port: {{ .Values.transportservice.port }}
+      targetPort: {{ .Values.transportservice.port }}
+      protocol: TCP
+      name: transport
+  selector:
+    app: {{ .Values.nameOverride }}
