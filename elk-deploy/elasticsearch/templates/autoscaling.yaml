@@ -1,7 +1,8 @@
-# Autoscaling
 {{- if .Values.autoscaling.enabled }}
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
+
+# Autoscaling
 metadata:
   name: {{ .Values.appName }}
 spec:

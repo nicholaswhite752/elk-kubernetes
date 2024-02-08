@@ -7,8 +7,16 @@ spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
+
+  # Set Selector
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}
   
   template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}
     spec:
       # Create init container to set correct mmap count (not needed on all systems, but could come up in a prod env)
       initContainers:
@@ -31,7 +39,7 @@ spec:
         # Volume for elasticsearch.yml file    
         - name: es-config
           configMap:
-            name: {{ .Values.nameOverride }}-config
+            name: {{ .Values.appName }}-config
         # Volume for elasticsearch user creds (with Filerealm users)
         - name: es-users
           secret:

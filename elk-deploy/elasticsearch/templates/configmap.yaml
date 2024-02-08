@@ -1,8 +1,8 @@
-# Creates elasticsearch.yml file
 {{- if .Values.esConfig }}
 ---
 apiVersion: v1
 kind: ConfigMap
+# Creates elasticsearch.yml file
 metadata:
   name: {{ .Values.appName }}-config
   labels:

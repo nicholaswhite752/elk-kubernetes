@@ -1,8 +1,8 @@
-# Opens ports for service
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.nameOverride }}
+  name: {{ .Values.appName }}
+# Opens ports for service
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -15,4 +15,4 @@ spec:
       protocol: TCP
       name: transport
   selector:
-    app: {{ .Values.nameOverride }}
+    app: {{ .Values.appName }}

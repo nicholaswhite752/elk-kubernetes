@@ -4,7 +4,7 @@ metadata:
   name: {{.Values.esDataVolumeClaimName}}
 spec:
   storageClassName: {{.Values.esDataStorageClassName}}
-  volumeName: logs-data
+  volumeName: {{ .Values.esDataVolumeName }}
   accessModes:
     - ReadWriteOnce
   resources:

@@ -9,7 +9,8 @@ appName: "elasticsearch-dev"
 esDataVolumeClaimName: "elasticsearch-dev-volume"
 esDataVolumeName: "elasticsearch-data"
 esDataStorageClassName: "elasticsearch-storage-class"
-esDataFolderPath: "/var/lib/docker/volumes/esData/"
+#esDataFolderPath: "/var/lib/docker/volumes/esData/"
+esDataFolderPath: "/run/desktop/mnt/host/c/<PATH TO FOLDER ON HOST WHERE DATA FOR ES WILL BE STORED>"
 
 # Env Vars for running on local machine, dont use these in prod env
 extraEnvs:
