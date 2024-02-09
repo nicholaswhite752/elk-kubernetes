@@ -1,0 +1,18 @@
+{{- if .Values.kibanaConfig }}
+---
+apiVersion: v1
+kind: ConfigMap
+# Creates config map for kibana config
+metadata:
+  name: {{ .Values.appName }}-config
+  labels:
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
+    chart: "{{ .Chart.Name }}"
+    app: "{{ .Values.appName }}"
+data:
+{{- range $path, $config := .Values.kibanaConfig }}
+  {{ $path }}: |
+{{ $config | indent 4 -}}
+{{- end -}}
+{{- end -}}

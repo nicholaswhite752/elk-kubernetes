@@ -1,0 +1,55 @@
+# Default values for test-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+appName: kibana-dev
+
+# Image information
+image:
+  repository: docker.elastic.co/kibana/kibana:6.8.2
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "6.8.2"
+
+# kibanaSecrets:
+#   ELASTICSEARCH_HOSTS: "http://elasticsearch-local:9200"
+#   ELASTICSEARCH_USERNAME: "elastic"
+#   ELASTICSEARCH_PASSWORD: "changeme"
+
+# Kibana configuration for kibana.yml file
+# This connects to Elasticsearch with the ability to add username and password for kibana system
+kibanaConfig:
+  kibana.yml: |
+    elasticsearch.hosts: ["http://elasticsearch-dev:9200"]
+    elasticsearch.username: kibanaSystem
+    elasticsearch.password: password
+    server.name: kibana
+    server.host: "0"
+
+# Ports
+# This is a NodePort so a user can access on local machine
+# Check port number by using `kubectl get all` command and looking at service section
+service:
+  type: NodePort
+  port: 5601
+
+# Creates service account
+serviceAccount:
+  name: kibana-service-account
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+
+# Autoscaling info
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+replicaCount: 1  
