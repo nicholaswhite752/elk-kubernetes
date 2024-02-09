@@ -1,0 +1,88 @@
+# Default values for test-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Name of service
+appName: "logstash-dev"
+
+# Pipeline Configuration Names
+pipelineConfigName: "logstash-dev-pipeline"
+
+# Image information
+image:
+  repository: docker.elastic.co/logstash/logstash:6.8.2
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "6.8.2"
+
+# Logstash configuration file for logstash.yml
+# IMPORTANT: Needs the elasticsearch host (docker understands elasticsearch-dev is the same elasticsearch container)
+# User/pass is defined in elasticsearch file realm files (needs logstash system role in elasticsearch)
+# Needs http host 0.0.0.0 to accept connections from other systems
+logstashConfig:
+  logstash.yml: |
+    http.host: "0.0.0.0"
+    xpack.monitoring.enabled: true
+    xpack.monitoring.elasticsearch.hosts: elasticsearch-dev:9200
+    xpack.monitoring.elasticsearch.username: logstashSystem
+    xpack.monitoring.elasticsearch.password: password
+
+# Logstash pipeline configuration file
+# Input is a filebeat connection
+# Exports to elasticsearch using testUser and password (a basic user with write permissions)
+logstashPipeline:
+  uptime.conf: |
+    input {
+      # Input is a filebeat connection on port
+      beats {
+        port => 5228
+      }
+    }
+
+    # in logstash, will output to stdout, and to elasticsearch
+    output {
+      stdout { codec => json_lines }
+      elasticsearch {
+          hosts => [ "elasticsearch-dev:9200" ]
+          index => "elk-local"
+          user => "testUser"
+          password => "password"
+      }
+    }
+
+
+# Ports for service 
+service:
+  type: ClusterIP
+  port: 9600
+
+beatservice:
+  type: ClusterIP
+  port: 5228
+
+# Service Account info
+serviceAccount:
+  name: logstash-service-account
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+
+# Autoscaling info
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 20
+  # targetMemoryUtilizationPercentage: 80
+
+
+replicaCount: 1
+
+# Logstash variables
+logstashSecrets: {}
+#   LOGSTASH_PORT: "5228"
+#   LOGSTASH_INDEX: "elk-local"
+#   ELASTIC_HOST: "elasticsearch-dev:9200"

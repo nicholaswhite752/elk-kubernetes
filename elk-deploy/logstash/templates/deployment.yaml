@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}
+spec:
+  # Sets replica count if no autoscaling policy
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+
+  # Set selector
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}
+
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}
+    spec:
+      # Creates service account
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+
+      # Declares columes for container
+      volumes:
+        # Volume for logstash pipeline config
+        {{- if .Values.logstashPipeline }}
+        - name: logstashpipeline
+          configMap:
+            name: {{ .Values.pipelineConfigName }}
+        {{- end }}
+        # Volume for logstash app config
+        - name: logstash-config
+          configMap:
+            name: {{ .Values.appName }}-config    
+      
+      # Main container
+      containers:
+        - name: {{ .Values.appName }}
+          # Image info
+          image: {{ .Values.image.repository }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          # Env vars for secrets (from logstashSecrets in values)
+          envFrom:
+            - secretRef:
+                name: logstashsecret
+
+          # Mounts for volumes
+          volumeMounts:
+            - name: logstash-config
+              mountPath: /usr/share/logstash/config/logstash.yml
+              subPath: logstash.yml  
+            {{- range $path, $config := .Values.logstashPipeline }}
+            - name: logstashpipeline
+              mountPath: /usr/share/logstash/pipeline/{{ $path }}
+              subPath: {{ $path }}
+            {{- end -}}

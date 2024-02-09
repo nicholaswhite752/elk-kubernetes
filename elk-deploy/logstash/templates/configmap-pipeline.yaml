@@ -1,0 +1,18 @@
+{{- if .Values.logstashPipeline }}
+---
+apiVersion: v1
+kind: ConfigMap
+# Creates config map for pipeline conf 
+metadata:
+  name: {{ .Values.pipelineConfigName }}
+  labels:
+    app: {{ .Values.pipelineConfigName }}
+    chart: "{{ .Chart.Name }}"
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
+data:
+{{- range $path, $config := .Values.logstashPipeline }}
+  {{ $path }}: |
+{{ tpl $config $ | indent 4 -}}
+{{- end -}}
+{{- end -}}

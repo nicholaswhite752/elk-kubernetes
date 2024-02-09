@@ -1,0 +1,18 @@
+{{- if .Values.logstashConfig }}
+---
+apiVersion: v1
+kind: ConfigMap
+# Creates configmap for logstash.yml file
+metadata:
+  name: {{ .Values.appName }}-config
+  labels:
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
+    chart: "{{ .Chart.Name }}"
+    app: "{{ .Values.appName }}"
+data:
+{{- range $path, $config := .Values.logstashConfig }}
+  {{ $path }}: |
+{{ $config | indent 4 -}}
+{{- end -}}
+{{- end -}}
