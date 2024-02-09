@@ -1,0 +1,63 @@
+# Default values for test-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+appName: "filebeat-dev"
+
+volumeClaimName: logs-volume-claim
+
+# Image information
+image:
+  repository: docker.elastic.co/beats/filebeat:6.8.2
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "6.8.2"
+
+# Filebeat configuration for filebeat.yml
+# logData.log if file that log-producing-app writes logs to
+filebeatConfig:
+  filebeat.yml: |
+    filebeat.inputs:
+      - type: log
+        paths:
+          - /usr/share/filebeat/data/logData.log 
+
+    # outputs to logstash port 5228, docker understands the logstash namespace
+    output.logstash:
+      hosts: ["logstash-dev:5228"]
+
+# Info for service account
+serviceAccount:
+  name: filebeat-service-account
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+
+# Declares security context, this is needed because the filebeat.yml file needs permissions
+# May be safer to do this in an init container
+securityContext:
+  runAsUser: 0
+  privileged: false
+
+# Ports for service
+service:
+  type: ClusterIP
+  port: 9600
+
+beatservice:
+  type: ClusterIP
+  port: 5228
+
+# Autoscaling info
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 20
+  # targetMemoryUtilizationPercentage: 80
+
+replicaCount: 1
+

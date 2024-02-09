@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}
+spec:
+  # Set replica amount if no autoscaling policy
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+
+  # Set selector
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}
+    spec:
+      # Creates service account
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+
+      # Declares volumes for container
+      volumes:
+      # Volume where logs are written to
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: {{.Values.volumeClaimName}}  
+      # Volume for filebeat.yml config 
+      {{- if .Values.filebeatConfig }}
+      - name: filebeat-config
+        configMap:
+          defaultMode: 0600
+          name: {{ .Values.appName }}-config
+      {{- end }}
+
+      # Main container
+      containers:
+        - name: {{ .Values.appName }}
+          
+          # Image info
+          image: {{ .Values.image.repository }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          # Security info
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+
+          # Mount locations for volumes
+          volumeMounts:
+          - name: logs-volume
+            mountPath: /usr/share/filebeat/data
+          {{- range $path, $config := .Values.filebeatConfig }}
+          - name: filebeat-config
+            mountPath: /usr/share/filebeat/{{ $path }}
+            subPath: {{ $path }}
+            readOnly: true
+          {{- end }} 
+
+          # Env vars for secret
+          envFrom:
+            - secretRef:
+                name: filebeatsecret
