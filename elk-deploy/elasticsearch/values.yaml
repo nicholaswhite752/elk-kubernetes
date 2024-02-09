@@ -36,9 +36,13 @@ image:
 
 # Enables basic x-pack security with elasticsearch.yml
 # needs network host 0.0.0.0 to accept connections from other containers in cluster
+# Here is an issue:
+#   When using network host, it puts ES into production mode
+#   When using xpack in production mode it requires TLS if using the basic liscense (and not a trial or actual ES liscense)
+#   So in dev env we can't use xpack unless we fully commit to setting up TLS between all systems, which is overkill for this example
 esConfig:
   elasticsearch.yml: |
-    xpack.security.enabled: true
+    xpack.security.enabled: false
     network.host: 0.0.0.0
 
 # Create a service account for elasticsearch service on kubernetes
