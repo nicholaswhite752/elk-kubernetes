@@ -1,0 +1,9 @@
+# Default values for test-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+volumeName: logs-volume
+
+storageClassName: logs-storage-class
+volumeClaimName: logs-volume-claim
+logsDataFolderPath: "/run/desktop/mnt/host/c/<PATH TO FOLDER ON HOST THAT CONTAINS LOG FILES>"
