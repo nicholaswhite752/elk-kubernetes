@@ -21,11 +21,13 @@ image:
 # Needs http host 0.0.0.0 to accept connections from other systems
 logstashConfig:
   logstash.yml: |
-    http.host: "0.0.0.0"
-    xpack.monitoring.enabled: true
-    xpack.monitoring.elasticsearch.hosts: elasticsearch-dev:9200
-    xpack.monitoring.elasticsearch.username: logstashSystem
-    xpack.monitoring.elasticsearch.password: password
+    xpack.monitoring.enabled: false
+
+# Would be used if xpack was enabled
+# http.host: "0.0.0.0"
+# xpack.monitoring.elasticsearch.hosts: elasticsearch-dev:9200
+# xpack.monitoring.elasticsearch.username: logstashSystem
+# xpack.monitoring.elasticsearch.password: password
 
 # Logstash pipeline configuration file
 # Input is a filebeat connection
@@ -44,9 +46,9 @@ logstashPipeline:
       stdout { codec => json_lines }
       elasticsearch {
           hosts => [ "elasticsearch-dev:9200" ]
-          index => "elk-local"
-          user => "testUser"
-          password => "password"
+          index => "elk-dev"
+          # user => "testUser"
+          # password => "password"
       }
     }
 
@@ -82,7 +84,7 @@ autoscaling:
 replicaCount: 1
 
 # Logstash variables
-logstashSecrets: {}
-#   LOGSTASH_PORT: "5228"
-#   LOGSTASH_INDEX: "elk-local"
-#   ELASTIC_HOST: "elasticsearch-dev:9200"
+logstashSecrets:
+  LOGSTASH_PORT: "5228"
+  LOGSTASH_INDEX: "elk-dev"
+  ELASTIC_HOST: "elasticsearch-dev:9200"

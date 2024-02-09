@@ -20,7 +20,8 @@ filebeatConfig:
     filebeat.inputs:
       - type: log
         paths:
-          - /usr/share/filebeat/data/logData.log 
+          - /usr/share/filebeat/data/logData.log
+        json.keys_under_root: true   
 
     # outputs to logstash port 5228, docker understands the logstash namespace
     output.logstash:
