@@ -5,7 +5,7 @@ metadata:
 spec:
 
   schedule: "*/5 * * * *"
-  suspend: true    
+  suspend: false    
 
   jobTemplate:
     spec:
