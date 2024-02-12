@@ -1,0 +1,36 @@
+# Default values for test-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+appName: log-producing-app
+
+volumeClaimName: logs-volume-claim
+
+# Image information
+image:
+  repository: log-producing-app-go
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+
+# Creates service account
+serviceAccount:
+  name: log-producing-app-service-account
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+
+# Autoscaling info
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+replicaCount: 1  

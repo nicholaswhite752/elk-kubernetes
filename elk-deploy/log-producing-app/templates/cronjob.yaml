@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.appName }}
+spec:
+
+  schedule: "*/5 * * * *"
+  suspend: true    
+
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ .Values.appName }}
+        spec:
+          # Creates service account
+          serviceAccountName: {{ .Values.serviceAccount.name }}
+
+          restartPolicy: OnFailure
+          # Declares volumes for container
+          volumes:
+            # Volume for logs to be written
+            - name: logs-volume
+              persistentVolumeClaim:
+                claimName: {{.Values.volumeClaimName}}   
+
+          # Main Container          
+          containers:
+            - name: {{ .Values.appName }}
+              
+              # Image info
+              image: {{ .Values.image.repository }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+              # Env var for secrets - not used in this example, but can be added to from kibanaSecrets in values file
+              envFrom:
+                - secretRef:
+                    name: kibanasecrets
+              
+              # Mounts for volumes
+              volumeMounts:
+                - name: logs-volume
+                  mountPath: /app/logdata               

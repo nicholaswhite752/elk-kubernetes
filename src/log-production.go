@@ -13,7 +13,7 @@ import (
 func main() {
 
 	file, err := os.OpenFile(
-        "../elk-deploy/logdata/logData.log",
+        "./logdata/logData.log",
         os.O_APPEND|os.O_CREATE|os.O_WRONLY,
         0664,
     )
